@@ -6,9 +6,7 @@
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest"
   },
-  "proxy": "http://localhost:4000/",
   "dependencies": {
-    "axios": "^0.18.0",
     "react": "16.6.1",
     "react-native": "0.57.5",
     "react-navigation": "^2.18.2",

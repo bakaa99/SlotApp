@@ -36,20 +36,25 @@ class HomeScreen extends React.Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.slots !== prevProps.slots) {
-            // this.uploadDate()
+            this.uploadData()
             this.generateSlots(this.convertTo24HoursFormat(this.props.startTime), this.convertTo24HoursFormat(this.props.endTime))
         }
     }
 
-    uploadDate() {
+    uploadData() {
         let body = {
             startTime: this.props.startTime,
             endTime: this.props.endTime,
             slots: this.props.slots
         }
-
+        fetch('http://localhost:4000/store/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        })
     }
-
 
     convertTo24HoursFormat(time) {
         splitTime = time.split(" ")

@@ -8,6 +8,15 @@ const initialState = {
 
 const SlotsReducer = (state = initialState, action) => {
     switch (action.type) {
+
+        case Actions.LOAD_INITIAL: {
+            return Object.assign({}, state, {
+                slots: action.data.slots,
+                startTime: action.data.startTime,
+                endTime: action.data.endTime
+            });
+        }
+
         case Actions.SAVE_SLOT:
             return Object.assign({}, state, {
                 slots: [
@@ -21,9 +30,10 @@ const SlotsReducer = (state = initialState, action) => {
                     }
                 ]
             });
+            
         case Actions.EDIT_SLOT:
             let slots = state.slots;
-            
+
             slots.map((slot, index) => {
                 if (slot.startTime === action.data.startTime && slot.endTime === action.data.endTime) {
                     return Object.assign(slot, {

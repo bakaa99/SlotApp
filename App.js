@@ -4,7 +4,7 @@ import { createStackNavigator, } from 'react-navigation';
 import HomeScreen from './Screens/HomeScreen';
 import SlotDetailScreen from './Screens/SlotDetailScreen';
 import { Provider } from 'react-redux';
-
+import * as Actions from './Redux/Actions/ActionTypes';
 import store from './Redux/Reducers';
 
 const RootStack = createStackNavigator(
@@ -24,17 +24,17 @@ const RootStack = createStackNavigator(
 class Container extends React.Component {
 
   componentDidMount() {
-    this.callApi()
+    fetch('http://localhost:4000/store/'
+    ).then((response) => response.json())
+      .then((responseJson) => {
+        () => {
+          store.dispatch({ type: Actions.LOAD_INITIAL, data:responseJson })
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
-
-  callApi = async () => {
-    const response = await fetch('/store/');
-    const body = await response.json();
-    console.log('---->  ',body );
-    
-    if (response.status !== 200) throw Error(body.message);
-    return body;
-  };
 
   render() {
     return <RootStack />;
