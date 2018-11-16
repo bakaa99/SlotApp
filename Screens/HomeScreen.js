@@ -34,11 +34,22 @@ class HomeScreen extends React.Component {
         this.generateSlots(this.convertTo24HoursFormat(this.props.startTime), this.convertTo24HoursFormat(this.props.endTime))
     }
 
-    componentDidUpdate(prevProps) {  
+    componentDidUpdate(prevProps) {
         if (this.props.slots !== prevProps.slots) {
+            // this.uploadDate()
             this.generateSlots(this.convertTo24HoursFormat(this.props.startTime), this.convertTo24HoursFormat(this.props.endTime))
         }
     }
+
+    uploadDate() {
+        let body = {
+            startTime: this.props.startTime,
+            endTime: this.props.endTime,
+            slots: this.props.slots
+        }
+
+    }
+
 
     convertTo24HoursFormat(time) {
         splitTime = time.split(" ")

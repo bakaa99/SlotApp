@@ -22,6 +22,20 @@ const RootStack = createStackNavigator(
 );
 
 class Container extends React.Component {
+
+  componentDidMount() {
+    this.callApi()
+  }
+
+  callApi = async () => {
+    const response = await fetch('/store/');
+    const body = await response.json();
+    console.log('---->  ',body );
+    
+    if (response.status !== 200) throw Error(body.message);
+    return body;
+  };
+
   render() {
     return <RootStack />;
   }

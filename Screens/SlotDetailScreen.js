@@ -2,11 +2,10 @@ import React from 'react';
 import {
     StyleSheet, Text, View, TextInput, TouchableWithoutFeedback,
     Keyboard, TouchableOpacity, Alert, Modal, TouchableHighlight, CameraRoll, ScrollView,
-    PermissionsAndroid
+    PermissionsAndroid, Platform, Image
 } from 'react-native';
 import { connect } from 'react-redux';
 import * as Actions from '../Redux/Actions/ActionTypes';
-import { ImagePicker } from 'expo';
 
 
 const mapStateToProps = (state) => ({
@@ -110,64 +109,79 @@ class SlotDetailsScreen extends React.Component {
         }
     };
 
-    _pickImage = () => {
+    async requestPhotosPermission() {
+        try {
+            const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE)
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                this.getPhotos();
+            } else {
+                console.log("Photos permission denied")
+            }
+        } catch (err) {
+            console.warn(err)
+        }
+    }
+
+    getPhotos = () => {
         CameraRoll.getPhotos({
-            first: 20,
+            first: 1000,
             assetType: 'Photos',
-          })
-          .then(r => {
-              console.log('---->  ', r);
-              
-            this.setState({ photos: r.edges });
-          })
-          .catch((err) => {
-             //Error Loading Images
-          });
-      };
+        })
+            .then(r => {
+                this.setState({ photos: r.edges });
+            })
+            .catch((err) => {
+                //Error Loading Images
+            });
+    };
 
     _onPressCancel = () => {
         this.props.navigation.goBack()
     };
 
-    setModalVisible(visible) {
-        console.log('----> calling some ');
-        this._pickImage()
-        // this.setState({ modalVisible: visible });
-    };
+    showModal = () => {
+        Platform.OS === 'Android' ? this.requestPhotosPermission() : this.getPhotos()
+        this.setState({ modalVisible: true })
+    }
+
+    hideModal = () => {
+        this.setState({ modalVisible: false })
+    }
 
 
     renderPhotos = () => {
-        console.log('---->  ', this.state.photos);
-
         if (this.state.photos) {
             return (
-                <View>
-                    <ScrollView>
-                        {this.state.photos.map((p, i) => {
-                            return (
-                                <Image
-                                    key={i}
-                                    style={{
-                                        width: 300,
-                                        height: 100,
-                                    }}
-                                    source={{ uri: p.node.image.uri }}
-                                />
-                            );
-                        })}
-
-                    </ScrollView>
-                    <View style={styles.ButtonContainer}>
+                <View style={{ justifyContent: 'center' }}>
+                    <View style={[styles.ButtonContainer, { paddingBottom: 20 }]}>
                         <TouchableOpacity
                             style={[styles.button, { backgroundColor: '#0686E4' }]}
-                            onPress={() => this.setModalVisible(false)}
+                            onPress={this.hideModal}
                         >
                             <Text style={styles.buttonText}> Close</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
 
-            )
+                    <ScrollView contentInset={bottom = 50}>
+                        {this.state.photos.map((p, i) => {
+                            return (
+                                <View key={i} style={{ flex: 1, padding: 10, justifyContent: 'center', alignItems: 'center' }}>
+                                    <Image
+
+                                        style={{
+                                            width: '90%',
+                                            height: 200,
+                                        }}
+                                        source={{ uri: p.node.image.uri }}
+                                    />
+                                </View>
+                            );
+                        })}
+                        <View style={{ paddingBottom: 250 }}/>
+                    </ScrollView>
+
+                </View>
+            );
         }
 
     }
@@ -175,7 +189,6 @@ class SlotDetailsScreen extends React.Component {
 
 
     render() {
-        const { navigate } = this.props.navigation;
         return (
             <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                 <View style={styles.container}>
@@ -184,10 +197,12 @@ class SlotDetailsScreen extends React.Component {
                         transparent={false}
                         visible={this.state.modalVisible}
                         onRequestClose={() => {
-                            Alert.alert('Modal has been closed.');
+                            this.hideModal()
                         }}>
                         <View style={{ marginTop: 22 }}>
-                            {this.renderPhotos()}
+                            <View>
+                                {this.renderPhotos()}
+                            </View>
                         </View>
                     </Modal>
                     <View style={styles.InputView}>
@@ -229,7 +244,7 @@ class SlotDetailsScreen extends React.Component {
                     <View style={styles.ButtonContainer}>
                         <TouchableOpacity
                             style={[styles.button, { backgroundColor: '#0686E4' }]}
-                            onPress={() => this.setModalVisible(true)}
+                            onPress={this.showModal}
                         >
                             <Text style={styles.buttonText}> Gallery</Text>
                         </TouchableOpacity>
